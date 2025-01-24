@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Alex Yang <ayang@roblox.com>"]
 readme = "README.md"
-packages = [{include = "."}]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.10"
@@ -15,4 +15,3 @@ streamlit = ">=1.41.1,<2.0.0"
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
-
