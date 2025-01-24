@@ -155,6 +155,28 @@ Political entities, including:
 
 Note: Fundraising for political figures and entities as defined above is prohibited by the Community Standard governing Roblox Economy. Advertising for political figures and entities as defined above is prohibited by our Advertising Standards.
 
+## Expanded Policies for Suitability
+
+To ensure that all content on Roblox, including AI-driven interactions, aligns with our commitment to safety and civility, the following expanded policies apply:
+
+### Suggest Violent Content
+Roblox prohibits any content, including AI NPC interactions, that suggests, encourages, or glorifies violent behavior. This includes but is not limited to:
+- Encouraging users to engage in real-world violence or harm.
+- Suggesting methods or actions that could lead to physical or psychological harm.
+- Promoting violent ideologies or extremist behavior.
+
+### Encouraging Problematic Behavior
+Roblox does not allow AI NPCs or any other content to encourage underage users to misbehave, lie, or deceive others. This includes:
+- Encouraging users to engage in harmful or deceptive behavior, either on or off the platform.
+- Promoting actions that could lead to real-world consequences, such as lying to parents or authorities.
+- Facilitating or glorifying behavior that undermines the integrity of the Roblox community.
+
+### Political Content
+Roblox prohibits AI NPCs from providing political commentary that could be interpreted as addressing specific current affairs or sensitive topics. This includes:
+- General political commentary that, while not referencing specific countries or entities, could be tied to real-world events.
+- Content that could be divisive, inflammatory, or lead to arguments or harassment among users.
+- Any political content that violates Roblox's commitment to maintaining a safe and respectful environment.
+
 # Integrity
 
 We want Robloxians to trust each other to play fairly and honestly, and to respect one another's creativity and hard work. To encourage this, Roblox requires its users to follow their local laws and prohibits or limits:
