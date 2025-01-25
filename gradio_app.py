@@ -8,7 +8,10 @@ from typing import Dict, Any, List
 
 BASE_URL = "http://apis.sitetest3.simulpong.com/ml-gateway-service/v1/"
 anthropic_client = anthropic.Anthropic()
-openai_client = OpenAI(base_url=BASE_URL)
+openai_client = OpenAI(
+    base_url=BASE_URL,
+    api_key=os.getenv("ROBLOX_ML_API_KEY", "")
+)
 
 def get_llm_models() -> List[str]:
     default_model = "claude-3-5-sonnet-20241022"
@@ -65,22 +68,28 @@ Confidence: [High/Medium/Low]
 Reason: [brief explanation]
 Action: [recommended action]"""
 
-    if "claude" in selected_model.lower():
-        response = anthropic_client.messages.create(
-            model=selected_model,
-            max_tokens=1024,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.content[0].text
-    else:
-        response = openai_client.chat.completions.create(
-            model=selected_model,
-            messages=[
-                {"role": "system", "content": "You are a content moderator."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        return response.choices[0].message.content
+    try:
+        if "claude" in selected_model.lower():
+            response = anthropic_client.messages.create(
+                model=selected_model,
+                max_tokens=1024,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response.content[0].text
+        else:
+            response = openai_client.chat.completions.create(
+                model=selected_model,
+                messages=[
+                    {"role": "system", "content": "You are a content moderator."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            return response.choices[0].message.content
+    except Exception as e:
+        error_str = str(e)
+        if "ResponsibleAIPolicyViolation" in error_str:
+            return f'[ERROR] Azure OpenAI Content Policy Violation:\n{error_str}'
+        return f'[ERROR] Error occurred:\n{error_str}'
 
 with gr.Blocks() as app:
     gr.Markdown("# Content Moderation App")
