@@ -2,9 +2,22 @@ import gradio as gr
 import anthropic
 import json
 import os
-from typing import Dict, Any
+import requests
+from typing import Dict, Any, List
 
 client = anthropic.Anthropic()
+
+def get_llm_models() -> List[str]:
+    default_model = "claude-3-5-sonnet-20241022"
+    try:
+        response = requests.get("http://apis.sitetest3.simulpong.com/ml-gateway-service/v1/models")
+        models = [model["id"] for model in response.json() if model.get("object") == "llm"]
+        if not any("claude" in model.lower() for model in models):
+            models.append(default_model)
+        return models
+    except Exception as e:
+        print(f"Error fetching models: {e}")
+        return [default_model]
 
 def load_community_standards():
     with open('Roblox-Community-Standards.md', 'r') as f:
@@ -20,7 +33,6 @@ def load_example(example_name: str) -> Dict[str, str]:
     with open('examples.json', 'r') as f:
         examples = json.load(f)['examples']
     
-    # Find the example with matching name
     example = next((ex for ex in examples.values() if ex["name"] == example_name), None)
     if example:
         return {
@@ -65,6 +77,11 @@ with gr.Blocks() as app:
     
     with gr.Row():
         with gr.Column():
+            model_dropdown = gr.Dropdown(
+                choices=get_llm_models(),
+                value="claude-3-5-sonnet-20241022",
+                label="Select LLM"
+            )
             example_dropdown = gr.Dropdown(
                 choices=["None"] + [v["name"] for v in examples.values()],
                 value="None",
@@ -76,7 +93,7 @@ with gr.Blocks() as app:
             submit_btn = gr.Button("Analyze")
         
         with gr.Column():
-            output = gr.Textbox(label="Moderation Result", lines=16)
+            output = gr.Textbox(label="Moderation Result", lines=20)
     
     def update_inputs(example_id):
         example = load_example(example_id)
@@ -99,7 +116,7 @@ with gr.Blocks() as app:
     )
     
     gr.Markdown("## Community Standards Reference")
-    standards_display = gr.Textbox(value=load_community_standards(), label="", lines=20, interactive=False)
+    standards_display = gr.Markdown(value=load_community_standards(), container=True)
 
 if __name__ == "__main__":
     app.launch(server_name="0.0.0.0", share=False, root_path="/notebook/kubeflow-snd/ayang-lmaas-moderation-demo/proxy/7860")
