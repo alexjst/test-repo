@@ -102,4 +102,4 @@ with gr.Blocks() as app:
     standards_display = gr.Textbox(value=load_community_standards(), label="", lines=20, interactive=False)
 
 if __name__ == "__main__":
-    app.launch(server_name="0.0.0.0", share=True)
+    app.launch(server_name="0.0.0.0", share=False, root_path="/notebook/kubeflow-snd/ayang-lmaas-moderation-demo/proxy/7860")
