@@ -3,14 +3,18 @@ import anthropic
 import json
 import os
 import requests
+from openai import OpenAI
 from typing import Dict, Any, List
 
-client = anthropic.Anthropic()
+BASE_URL = "http://apis.sitetest3.simulpong.com/ml-gateway-service/v1/"
+anthropic_client = anthropic.Anthropic()
+openai_client = OpenAI(base_url=BASE_URL)
 
 def get_llm_models() -> List[str]:
     default_model = "claude-3-5-sonnet-20241022"
+    print("Fetching LLM models...")
     try:
-        response = requests.get("http://apis.sitetest3.simulpong.com/ml-gateway-service/v1/models")
+        response = requests.get(f"{BASE_URL}models")
         models = [model["id"] for model in response.json() if model.get("object") == "llm"]
         if not any("claude" in model.lower() for model in models):
             models.append(default_model)
@@ -42,7 +46,7 @@ def load_example(example_name: str) -> Dict[str, str]:
         }
     return {"user_message": "", "system_prompt": "", "chat_context": ""}
 
-def moderate_content(message, system_prompt, chat_context=""):
+def moderate_content(message, system_prompt, chat_context, selected_model):
     md_content = load_community_standards()
     
     prompt = f"""You are a content moderator. Analyze the following chat for Community Standards violations.
@@ -61,13 +65,22 @@ Confidence: [High/Medium/Low]
 Reason: [brief explanation]
 Action: [recommended action]"""
 
-    message = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=1024,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    
-    return message.content[0].text
+    if "claude" in selected_model.lower():
+        response = anthropic_client.messages.create(
+            model=selected_model,
+            max_tokens=1024,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.content[0].text
+    else:
+        response = openai_client.chat.completions.create(
+            model=selected_model,
+            messages=[
+                {"role": "system", "content": "You are a content moderator."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        return response.choices[0].message.content
 
 with gr.Blocks() as app:
     gr.Markdown("# Content Moderation App")
@@ -77,10 +90,12 @@ with gr.Blocks() as app:
     
     with gr.Row():
         with gr.Column():
+            models = get_llm_models()
             model_dropdown = gr.Dropdown(
-                choices=get_llm_models(),
-                value="claude-3-5-sonnet-20241022",
-                label="Select LLM"
+                choices=models,
+                value=models[0] if models else "claude-3-5-sonnet-20241022",
+                label="Select LLM",
+                interactive=True
             )
             example_dropdown = gr.Dropdown(
                 choices=["None"] + [v["name"] for v in examples.values()],
@@ -111,7 +126,7 @@ with gr.Blocks() as app:
     
     submit_btn.click(
         moderate_content,
-        inputs=[user_message, system_prompt, chat_context],
+        inputs=[user_message, system_prompt, chat_context, model_dropdown],
         outputs=[output]
     )
     
